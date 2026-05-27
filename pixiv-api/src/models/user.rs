@@ -13,6 +13,8 @@ pub struct UserPreview {
     pub is_followed: Option<bool>,
     #[serde(default)]
     pub is_accept_request: Option<bool>,
+    #[serde(default)]
+    pub is_muted: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,6 +38,8 @@ pub struct User {
     pub is_followed: Option<bool>,
     #[serde(default)]
     pub profile: Option<Profile>,
+    #[serde(default)]
+    pub is_access_blocking_user: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,6 +78,36 @@ pub struct Profile {
     pub twitter_url: Option<String>,
     #[serde(default)]
     pub is_premium: Option<bool>,
+    #[serde(default)]
+    pub birth_year: Option<i32>,
+    #[serde(default)]
+    pub address_id: Option<i32>,
+    #[serde(default)]
+    pub job_id: Option<i32>,
+    #[serde(default)]
+    pub total_illust_series: Option<u64>,
+    #[serde(default)]
+    pub total_novel_series: Option<u64>,
+    #[serde(default)]
+    pub pawoo_url: Option<String>,
+    #[serde(default)]
+    pub is_using_custom_profile_image: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProfilePublicity {
+    #[serde(default)]
+    pub gender: Option<String>,
+    #[serde(default)]
+    pub region: Option<String>,
+    #[serde(default)]
+    pub birth_day: Option<String>,
+    #[serde(default)]
+    pub birth_year: Option<String>,
+    #[serde(default)]
+    pub job: Option<String>,
+    #[serde(default)]
+    pub pawoo: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,6 +117,8 @@ pub struct UserDetail {
     pub profile: Option<Profile>,
     #[serde(default)]
     pub workspace: Option<Workspace>,
+    #[serde(default)]
+    pub profile_publicity: Option<ProfilePublicity>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,6 +145,10 @@ pub struct Workspace {
     pub chair: Option<String>,
     #[serde(default)]
     pub comment: Option<String>,
+    #[serde(default)]
+    pub scanner: Option<String>,
+    #[serde(default)]
+    pub workspace_image_url: Option<String>,
 }
 
 #[cfg(test)]
