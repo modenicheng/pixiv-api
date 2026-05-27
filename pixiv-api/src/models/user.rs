@@ -1,0 +1,130 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserPreview {
+    pub id: u64,
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub account: Option<String>,
+    #[serde(default)]
+    pub profile_image_urls: Option<ProfileImageUrls>,
+    #[serde(default)]
+    pub is_followed: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProfileImageUrls {
+    #[serde(default)]
+    pub medium: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: u64,
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub account: Option<String>,
+    #[serde(default)]
+    pub profile_image_urls: Option<ProfileImageUrls>,
+    #[serde(default)]
+    pub comment: Option<String>,
+    #[serde(default)]
+    pub is_followed: Option<bool>,
+    #[serde(default)]
+    pub profile: Option<Profile>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Profile {
+    #[serde(default)]
+    pub webpage: Option<String>,
+    #[serde(default)]
+    pub gender: Option<String>,
+    #[serde(default)]
+    pub birth: Option<String>,
+    #[serde(default)]
+    pub birth_day: Option<String>,
+    #[serde(default)]
+    pub region: Option<String>,
+    #[serde(default)]
+    pub country_code: Option<String>,
+    #[serde(default)]
+    pub job: Option<String>,
+    #[serde(default)]
+    pub total_follow_users: Option<u64>,
+    #[serde(default)]
+    pub total_mypixiv_users: Option<u64>,
+    #[serde(default)]
+    pub total_illusts: Option<u64>,
+    #[serde(default)]
+    pub total_manga: Option<u64>,
+    #[serde(default)]
+    pub total_novels: Option<u64>,
+    #[serde(default)]
+    pub total_illust_bookmarks_public: Option<u64>,
+    #[serde(default)]
+    pub background_image_url: Option<String>,
+    #[serde(default)]
+    pub twitter_account: Option<String>,
+    #[serde(default)]
+    pub twitter_url: Option<String>,
+    #[serde(default)]
+    pub is_premium: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserDetail {
+    pub user: User,
+    #[serde(default)]
+    pub profile: Option<Profile>,
+    #[serde(default)]
+    pub workspace: Option<Workspace>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Workspace {
+    #[serde(default)]
+    pub pc: Option<String>,
+    #[serde(default)]
+    pub monitor: Option<String>,
+    #[serde(default)]
+    pub tool: Option<String>,
+    #[serde(default)]
+    pub tablet: Option<String>,
+    #[serde(default)]
+    pub mouse: Option<String>,
+    #[serde(default)]
+    pub printer: Option<String>,
+    #[serde(default)]
+    pub desktop: Option<String>,
+    #[serde(default)]
+    pub music: Option<String>,
+    #[serde(default)]
+    pub desk: Option<String>,
+    #[serde(default)]
+    pub chair: Option<String>,
+    #[serde(default)]
+    pub comment: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_user_preview_partial() {
+        let json = r#"{"id": 111, "name": "Artist"}"#;
+        let user: UserPreview = serde_json::from_str(json).unwrap();
+        assert_eq!(user.id, 111);
+        assert_eq!(user.name.as_deref(), Some("Artist"));
+    }
+
+    #[test]
+    fn test_user_detail_partial() {
+        let json = r#"{"user": {"id": 222}}"#;
+        let detail: UserDetail = serde_json::from_str(json).unwrap();
+        assert_eq!(detail.user.id, 222);
+    }
+}

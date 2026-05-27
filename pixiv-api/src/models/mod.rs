@@ -1,4 +1,8 @@
 pub mod common;
+pub mod illust;
+pub mod novel;
+pub mod search;
+pub mod user;
 
 use serde::Deserialize;
 
