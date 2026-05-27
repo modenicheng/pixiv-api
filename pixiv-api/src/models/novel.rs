@@ -41,12 +41,26 @@ pub struct Novel {
     pub is_muted: Option<bool>,
     #[serde(default)]
     pub visible: Option<bool>,
+    #[serde(default)]
+    pub is_mypixiv_only: Option<bool>,
+    #[serde(default)]
+    pub is_x_restricted: Option<bool>,
+    #[serde(default)]
+    pub novel_ai_type: Option<i32>,
+    #[serde(default)]
+    pub comment_access_control: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NovelSeriesInfo {
     pub id: u64,
     pub title: String,
+    #[serde(default)]
+    pub viewable: Option<bool>,
+    #[serde(default)]
+    pub content_order: Option<String>,
+    #[serde(default)]
+    pub cover_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,12 +88,34 @@ pub struct NovelSeries {
     pub cover_image_urls: Option<super::common::ImageUrls>,
     #[serde(default)]
     pub first_novel_id: Option<u64>,
+    #[serde(default)]
+    pub watch_count: Option<u64>,
+    #[serde(default)]
+    pub is_watched: Option<bool>,
+    #[serde(default)]
+    pub last_novel_id: Option<u64>,
+    #[serde(default)]
+    pub latest_serialized_at: Option<String>,
+    #[serde(default)]
+    pub is_notifying: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NovelText {
     #[serde(default)]
     pub novel_text: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NovelComments {
+    #[serde(default)]
+    pub comments: Vec<super::illust::Comment>,
+    #[serde(default)]
+    pub next_url: Option<String>,
+    #[serde(default)]
+    pub total_comments: Option<u64>,
+    #[serde(default)]
+    pub comment_access_control: Option<i32>,
 }
 
 #[cfg(test)]

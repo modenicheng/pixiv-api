@@ -69,6 +69,12 @@ pub struct Illust {
     pub request: Option<serde_json::Value>,
     #[serde(default)]
     pub seasonal_effect_animation_urls: Option<serde_json::Value>,
+    #[serde(default)]
+    pub restriction_attributes: Option<Vec<String>>,
+    #[serde(default)]
+    pub comment_access_control: Option<i32>,
+    #[serde(default)]
+    pub favorited_details: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,6 +89,10 @@ pub struct IllustComments {
     pub comments: Vec<Comment>,
     #[serde(default)]
     pub next_url: Option<String>,
+    #[serde(default)]
+    pub total_comments: Option<u64>,
+    #[serde(default)]
+    pub comment_access_control: Option<i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,6 +105,8 @@ pub struct Comment {
     pub user: Option<super::user::UserPreview>,
     #[serde(default)]
     pub has_replies: Option<bool>,
+    #[serde(default)]
+    pub parent_comment: Option<Box<serde_json::Value>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
