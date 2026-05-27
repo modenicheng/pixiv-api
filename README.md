@@ -76,6 +76,159 @@ pixiv-dl illust 12345
 pixiv-dl download 12345 12346 -o ./images/
 ```
 
+## Examples
+
+The `examples/` directory contains runnable demos:
+
+| Example | Description | Run |
+|---|---|---|
+| `get_token` | Obtain a refresh token via OAuth2 PKCE | `cargo run -p pixiv-client --example get_token` |
+| `basic_usage` | Search illustrations and get details | `cargo run -p pixiv-client --example basic_usage` |
+| `user_profile` | Fetch your profile and recent illustrations | `cargo run -p pixiv-client --example user_profile` |
+| `download_illusts` | Search and download illustrations | `cargo run -p pixiv-client --example download_illusts` |
+| `bookmark_manager` | List, add, and remove bookmarks | `cargo run -p pixiv-client --example bookmark_manager` |
+
+All examples require the `PIXIV_REFRESH_TOKEN` environment variable (except `get_token`).
+
+## CLI Tool (`pixiv-dl`)
+
+A command-line tool for searching, viewing, and downloading Pixiv illustrations.
+
+### Installation
+
+```bash
+# From this repository
+cargo install --path pixiv-dl
+
+# Or build locally
+cargo build -p pixiv-dl
+```
+
+### Authentication
+
+Set your refresh token as an environment variable:
+
+```bash
+# Linux/macOS
+export PIXIV_REFRESH_TOKEN=your_token_here
+
+# Windows (PowerShell)
+$env:PIXIV_REFRESH_TOKEN = "your_token_here"
+
+# Windows (cmd)
+set PIXIV_REFRESH_TOKEN=your_token_here
+```
+
+Or authenticate interactively:
+
+```bash
+pixiv-dl auth --token your_token_here
+```
+
+### Commands
+
+#### `search` — Search for illustrations
+
+```bash
+pixiv-dl search <KEYWORD> [OPTIONS]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `--sort`, `-s` | Sort order | `date_desc` |
+| `--offset`, `-o` | Page offset | `0` |
+
+Sort options: `date_desc`, `date_asc`, `popular_desc`, `popular_male_desc`, `popular_female_desc`
+
+**Examples:**
+
+```bash
+# Search for illustrations, newest first
+pixiv-dl search "landscape"
+
+# Search sorted by popularity
+pixiv-dl search "猫" --sort popular_desc
+
+# Search with offset (pagination)
+pixiv-dl search "初音ミク" --sort popular_desc --offset 30
+
+# Search in Japanese
+pixiv-dl search "東方Project"
+```
+
+#### `illust` — View illustration details
+
+```bash
+pixiv-dl illust <ID>
+```
+
+**Examples:**
+
+```bash
+# View illustration details as formatted JSON
+pixiv-dl illust 12345
+
+# Use with jq for specific fields
+pixiv-dl illust 12345 | jq '.illust.title'
+```
+
+#### `download` — Download illustrations by ID
+
+```bash
+pixiv-dl download <IDS>... [OPTIONS]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `--output`, `-o` | Output directory | `./images` |
+
+**Examples:**
+
+```bash
+# Download a single illustration
+pixiv-dl download 12345
+
+# Download multiple illustrations
+pixiv-dl download 12345 12346 12347
+
+# Download to a custom directory
+pixiv-dl download 12345 -o ./my_art
+```
+
+### Typical Workflow
+
+```bash
+# 1. Get your refresh token (one-time setup)
+cargo run -p pixiv-client --example get_token
+
+# 2. Set the token
+export PIXIV_REFRESH_TOKEN=your_token_here
+
+# 3. Search for something
+pixiv-dl search "landscape" --sort popular_desc
+
+# 4. View details of an interesting result
+pixiv-dl illust 12345
+
+# 5. Download it
+pixiv-dl download 12345 -o ./downloads
+```
+
+### Piping and Scripting
+
+The CLI outputs JSON, so you can combine it with tools like `jq`:
+
+```bash
+# Get illustration IDs from search results
+pixiv-dl search "landscape" | jq '.illusts[].id'
+
+# Download all illustrations from a search
+pixiv-dl search "landscape" | jq -r '.illusts[].id' | xargs -I {} pixiv-dl download {}
+
+# Extract image URLs
+pixiv-dl illust 12345 | jq '.illust.image_urls.large'
+```
+
 ## Getting a Refresh Token
 
 Run the included helper:

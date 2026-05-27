@@ -7,6 +7,7 @@ license = "MIT"
 repository = "https://github.com/modenicheng/pixiv-api"
 keywords = ["pixiv", "api", "illustration", "async", "art"]
 categories = ["api-bindings", "web-programming::http-client"]
+readme = "../README.md"
 
 [dependencies]
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }

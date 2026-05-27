@@ -977,10 +977,15 @@ dependencies = [
 name = "pixiv-dl"
 version = "0.1.0"
 dependencies = [
+ "base64",
+ "chrono",
  "clap",
+ "md-5",
  "pixiv-client",
+ "rand 0.8.6",
  "reqwest",
  "serde_json",
+ "sha2",
  "tokio",
 ]
 
