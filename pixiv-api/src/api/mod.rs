@@ -9,7 +9,8 @@ pub mod user;
 pub mod bypass;
 
 use crate::config::{ClientConfig, Config};
-use reqwest::Client;
+use reqwest::{Client, Method};
+use serde::de::DeserializeOwned;
 
 /// Pixiv App API client.
 ///
@@ -69,6 +70,31 @@ impl PixivApi {
     /// Get the current user ID, if authenticated.
     pub fn user_id(&self) -> Option<u64> {
         self.user_id
+    }
+
+    /// Internal: make an authenticated API request and parse the response.
+    #[allow(dead_code)] // Will be used by endpoint modules in later tasks
+    pub(crate) async fn request<T: DeserializeOwned>(
+        &self,
+        method: Method,
+        path: &str,
+    ) -> crate::Result<crate::models::ApiResponse<T>> {
+        self.require_auth()?;
+
+        let url = format!("{}{path}", self.config.host);
+        let resp = self
+            .client
+            .request(method, &url)
+            .headers(self.auth_headers())
+            .send()
+            .await?;
+
+        if !resp.status().is_success() {
+            return Err(crate::PixivError::Status(resp.status()));
+        }
+
+        let raw: serde_json::Value = resp.json().await?;
+        Ok(crate::models::ApiResponse::from_json(raw))
     }
 }
 
