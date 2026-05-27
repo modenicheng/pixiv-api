@@ -180,8 +180,8 @@ async fn oauth_login_flow() -> Result<String, Box<dyn std::error::Error>> {
     // Generate PKCE challenge
     let code_verifier = {
         use rand::Rng;
-        let mut rng = rand::thread_rng();
-        let bytes: Vec<u8> = (0..32).map(|_| rng.r#gen()).collect();
+        let mut rng = rand::rng();
+        let bytes: Vec<u8> = (0..32).map(|_| rng.random()).collect();
         base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(&bytes)
     };
     let code_challenge = {
@@ -222,7 +222,7 @@ async fn oauth_login_flow() -> Result<String, Box<dyn std::error::Error>> {
         use md5::Digest;
         let mut hasher = md5::Md5::new();
         hasher.update(format!("{}{}", now, HASH_SECRET).as_bytes());
-        format!("{:x}", hasher.finalize())
+        hex::encode(hasher.finalize())
     };
 
     let client = reqwest::Client::new();

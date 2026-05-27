@@ -67,7 +67,7 @@ async fn main() {
     let hash = {
         let mut hasher = md5::Md5::new();
         hasher.update(format!("{}{}", now, HASH_SECRET).as_bytes());
-        format!("{:x}", hasher.finalize())
+        hex::encode(hasher.finalize())
     };
 
     let client = reqwest::Client::new();
@@ -111,8 +111,8 @@ async fn main() {
 
 fn generate_code_verifier() -> String {
     use rand::Rng;
-    let mut rng = rand::thread_rng();
-    let bytes: Vec<u8> = (0..32).map(|_| rng.r#gen()).collect();
+    let mut rng = rand::rng();
+    let bytes: Vec<u8> = (0..32).map(|_| rng.random()).collect();
     base64_encode(&bytes)
 }
 

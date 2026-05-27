@@ -101,7 +101,7 @@ impl PixivApi {
         let hash = {
             let mut hasher = Md5::new();
             hasher.update(format!("{}{}", now, config.hash_secret));
-            format!("{:x}", hasher.finalize())
+            hex::encode(hasher.finalize())
         };
 
         let mut headers = HeaderMap::new();
