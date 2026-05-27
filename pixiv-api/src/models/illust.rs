@@ -84,18 +84,6 @@ pub struct SeriesRef {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct IllustComments {
-    #[serde(default)]
-    pub comments: Vec<Comment>,
-    #[serde(default)]
-    pub next_url: Option<String>,
-    #[serde(default)]
-    pub total_comments: Option<u64>,
-    #[serde(default)]
-    pub comment_access_control: Option<i32>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Comment {
     pub id: u64,
     pub comment: String,
