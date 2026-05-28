@@ -228,15 +228,30 @@ pixiv-dl download <IDS>... [OPTIONS]
 | Option | Description | Default |
 |---|---|---|
 | `--output`, `-o` | Output directory | `./images` |
+| `--size`, `-s` | Image resolution: `original`, `large`, or `medium` | `original` |
+| `--concurrency`, `-j` | Max parallel downloads | `4` |
+
+**Page selection syntax:**
+
+Use `id[0,2,3]` to download specific pages of a multi-page illustration. Page indices are zero-based. Bare IDs download all pages.
 
 **Examples:**
 
 ```bash
-# Download a single illustration
+# Download a single illustration (all pages)
 pixiv-dl download 12345
 
-# Download multiple illustrations
+# Download multiple illustrations in parallel
 pixiv-dl download 12345 12346 12347
+
+# Select specific pages from a multi-page illustration
+pixiv-dl download 12345[0,2,3]
+
+# Mixed IDs — some with page filter, some full
+pixiv-dl download 12345[0] 99999 55555[1,3]
+
+# Download at large resolution with 8 concurrent workers
+pixiv-dl download 12345 -s large -j 8
 
 # Download to a custom directory
 pixiv-dl download 12345 -o ./my_art
