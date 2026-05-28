@@ -2,6 +2,36 @@ use crate::error::PixivError;
 use std::path::PathBuf;
 use tokio::fs;
 
+/// A single image download task.
+#[derive(Debug, Clone)]
+pub struct DownloadTask {
+    pub url: String,
+    pub filename: String,
+}
+
+/// Events emitted during downloads for progress tracking.
+#[derive(Debug)]
+pub enum ProgressEvent {
+    /// A download attempt is starting.
+    Started {
+        filename: String,
+        total_bytes: Option<u64>,
+    },
+    /// A chunk of data was downloaded.
+    Chunk {
+        filename: String,
+        bytes_downloaded: u64,
+    },
+    /// A file was saved successfully.
+    Finished { filename: String, path: PathBuf },
+    /// A download attempt failed (will be retried).
+    Failed {
+        filename: String,
+        error: String,
+        attempt: u32,
+    },
+}
+
 /// Download manager for Pixiv images.
 pub struct DownloadManager {
     client: reqwest::Client,
@@ -93,5 +123,69 @@ mod tests {
         let client = reqwest::Client::new();
         let dm = DownloadManager::new(client, "./test_output");
         assert_eq!(dm.output_dir, PathBuf::from("./test_output"));
+    }
+
+    #[test]
+    fn test_download_task_creation() {
+        let task = DownloadTask {
+            url: "https://example.com/image.jpg".to_string(),
+            filename: "image.jpg".to_string(),
+        };
+        assert_eq!(task.url, "https://example.com/image.jpg");
+        assert_eq!(task.filename, "image.jpg");
+    }
+
+    #[test]
+    fn test_progress_event_started() {
+        let event = ProgressEvent::Started {
+            filename: "image.jpg".to_string(),
+            total_bytes: Some(1024),
+        };
+        match event {
+            ProgressEvent::Started {
+                filename,
+                total_bytes,
+            } => {
+                assert_eq!(filename, "image.jpg");
+                assert_eq!(total_bytes, Some(1024));
+            }
+            _ => panic!("Expected Started variant"),
+        }
+    }
+
+    #[test]
+    fn test_progress_event_finished() {
+        let event = ProgressEvent::Finished {
+            filename: "image.jpg".to_string(),
+            path: PathBuf::from("/tmp/image.jpg"),
+        };
+        match event {
+            ProgressEvent::Finished { filename, path } => {
+                assert_eq!(filename, "image.jpg");
+                assert_eq!(path, PathBuf::from("/tmp/image.jpg"));
+            }
+            _ => panic!("Expected Finished variant"),
+        }
+    }
+
+    #[test]
+    fn test_progress_event_failed() {
+        let event = ProgressEvent::Failed {
+            filename: "image.jpg".to_string(),
+            error: "network error".to_string(),
+            attempt: 2,
+        };
+        match event {
+            ProgressEvent::Failed {
+                filename,
+                error,
+                attempt,
+            } => {
+                assert_eq!(filename, "image.jpg");
+                assert_eq!(error, "network error");
+                assert_eq!(attempt, 2);
+            }
+            _ => panic!("Expected Failed variant"),
+        }
     }
 }
