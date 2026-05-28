@@ -4,6 +4,44 @@ use clap::{Parser, Subcommand};
 use pixiv_client::PixivApi;
 use pixiv_client::models::search::SearchSort;
 
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+struct IllustInput {
+    id: u64,
+    pages: Option<Vec<usize>>,
+}
+
+#[allow(dead_code)]
+fn parse_illust_input(s: &str) -> Result<IllustInput, String> {
+    if let Some(bracket_start) = s.find('[') {
+        let id_str = &s[..bracket_start];
+        let id: u64 = id_str
+            .parse()
+            .map_err(|_| format!("invalid illustration ID: {id_str}"))?;
+
+        let rest = &s[bracket_start..];
+        if !rest.ends_with(']') {
+            return Err(format!("missing closing bracket in: {s}"));
+        }
+        let pages_str = &rest[1..rest.len() - 1];
+        let pages: Vec<usize> = pages_str
+            .split(',')
+            .map(|p| p.trim().parse::<usize>())
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|_| format!("invalid page number in: {s}"))?;
+
+        Ok(IllustInput {
+            id,
+            pages: Some(pages),
+        })
+    } else {
+        let id: u64 = s
+            .parse()
+            .map_err(|_| format!("invalid illustration ID: {s}"))?;
+        Ok(IllustInput { id, pages: None })
+    }
+}
+
 #[derive(Parser)]
 #[command(name = "pixiv-dl")]
 #[command(version, about = "Pixiv illustration downloader")]
@@ -42,11 +80,17 @@ enum Commands {
     },
     /// Download illustrations by ID
     Download {
-        /// Illustration IDs to download
-        ids: Vec<u64>,
+        /// Illustration IDs (e.g. 12345 or 12345[0,2,3])
+        ids: Vec<String>,
         /// Output directory
         #[arg(short, long, default_value = "./images")]
         output: String,
+        /// Image size: original, large, or medium
+        #[arg(short, long, default_value = "original")]
+        size: String,
+        /// Max concurrent downloads
+        #[arg(short = 'j', long, default_value = "4")]
+        concurrency: usize,
     },
 }
 
@@ -108,31 +152,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let result = api.illust_detail(id).await?;
             println!("{}", serde_json::to_string_pretty(&result.raw)?);
         }
-        Commands::Download { ids, output } => {
-            let api = authenticated_api().await?;
-            for id in ids {
-                let detail = api.illust_detail(id).await?;
-                println!("Downloading illustration {id}...");
-                let image_url = detail.raw["illust"]["image_urls"]["large"]
-                    .as_str()
-                    .or_else(|| {
-                        detail.raw["illust"]["meta_single_page"]["original_image_url"].as_str()
-                    });
-                if let Some(url) = image_url {
-                    let dm = pixiv_client::downloader::DownloadManager::new(
-                        reqwest::Client::new(),
-                        &output,
-                    );
-                    let ext = if url.contains(".png") { "png" } else { "jpg" };
-                    let filename = format!("{id}.{ext}");
-                    match dm.download(url, &filename).await {
-                        Ok(path) => println!("  Saved to {}", path.display()),
-                        Err(e) => eprintln!("  Failed: {e}"),
-                    }
-                } else {
-                    eprintln!("  Could not find image URL for {id}");
-                }
-            }
+        Commands::Download {
+            ids,
+            output,
+            size,
+            concurrency,
+        } => {
+            // Rewritten in Task 5
+            eprintln!("download command will be implemented in next task");
+            let _ = (ids, output, size, concurrency);
         }
     }
 
@@ -275,4 +303,37 @@ fn extract_code(url: &str) -> Option<String> {
         }
     }
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_illust_input_bare_id() {
+        let result = parse_illust_input("12345").unwrap();
+        assert_eq!(result.id, 12345);
+        assert_eq!(result.pages, None);
+    }
+
+    #[test]
+    fn test_parse_illust_input_with_pages() {
+        let result = parse_illust_input("12345[0,2,3]").unwrap();
+        assert_eq!(result.id, 12345);
+        assert_eq!(result.pages, Some(vec![0, 2, 3]));
+    }
+
+    #[test]
+    fn test_parse_illust_input_single_page() {
+        let result = parse_illust_input("99999[1]").unwrap();
+        assert_eq!(result.id, 99999);
+        assert_eq!(result.pages, Some(vec![1]));
+    }
+
+    #[test]
+    fn test_parse_illust_input_invalid() {
+        assert!(parse_illust_input("abc").is_err());
+        assert!(parse_illust_input("123[").is_err());
+        assert!(parse_illust_input("123[abc]").is_err());
+    }
 }
